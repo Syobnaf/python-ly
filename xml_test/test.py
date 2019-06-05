@@ -20,6 +20,10 @@ def test_all():
     assert failed_tests == 0, "{} test(s) failed\n".format(failed_tests)
     print("All tests passed\n")  # Prints if no tests failed
 
+def test():
+    """Test only the designated test file against its expected output in /test_media"""
+    assert compare_output("test"), "MusicXML output does not match expected output"
+
 def ly_to_xml(filename):
     """Read Lilypond file and return XML string."""
     writer = ly.musicxml.writer()
@@ -72,4 +76,5 @@ def are_multi_line_equal(first, second, filename, msg=None):
         print("Test failed for file {}, diff is above\n".format(filename))
         return False
 
-test_all()
+# test_all()
+test()
