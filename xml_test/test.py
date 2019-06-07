@@ -10,16 +10,6 @@ import difflib
 import ly.musicxml
 from lxml import etree
 
-def test_all():
-    """Test all input files against output files in /test_media"""
-    failed_tests = 0
-    for i in range(1, 10):  # Performs 9 tests
-        input("Press enter to test file {}\n".format(i))
-        if not compare_output(str(i)):
-            failed_tests += 1
-    assert failed_tests == 0, "{} test(s) failed\n".format(failed_tests)
-    print("All tests passed\n")  # Prints if no tests failed
-
 def test():
     """Test only the designated test file against its expected output in /test_media"""
     assert compare_output("test"), "MusicXML output does not match expected output"
@@ -76,5 +66,4 @@ def are_multi_line_equal(first, second, filename, msg=None):
         print("Test failed for file {}, diff is above\n".format(filename))
         return False
 
-# test_all()
 test()
