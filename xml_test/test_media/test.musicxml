@@ -558,6 +558,9 @@
         <type>half</type>
         <dot />
       </note>
+      <barline location="right">
+        <bar-style>none</bar-style>
+      </barline>
     </measure>
     <measure number="6">
       <note>
@@ -1399,6 +1402,9 @@
         <type>half</type>
         <dot />
       </note>
+      <barline location="right">
+        <bar-style>none</bar-style>
+      </barline>
     </measure>
     <measure number="6">
       <note>
@@ -1713,6 +1719,9 @@
         <type>half</type>
         <dot />
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
 </score-partwise>
