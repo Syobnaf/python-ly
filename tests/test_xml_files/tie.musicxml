@@ -4,8 +4,8 @@
 <score-partwise version="3.0">
   <identification>
     <encoding>
-      <software>python-ly 0.9.4</software>
-      <encoding-date>2016-03-28</encoding-date>
+      <software>python-ly 0.9.5</software>
+      <encoding-date>2019-06-10</encoding-date>
     </encoding>
   </identification>
   <part-list>
@@ -28,12 +28,29 @@
       </attributes>
       <note>
         <pitch>
-          <step>A</step>
+          <step>C</step>
           <octave>3</octave>
         </pitch>
         <duration>1</duration>
+        <tie type="start" />
         <voice>1</voice>
         <type>quarter</type>
+        <notations>
+          <tied type="start" />
+        </notations>
+      </note>
+      <note>
+        <pitch>
+          <step>C</step>
+          <octave>3</octave>
+        </pitch>
+        <duration>1</duration>
+        <tie type="stop" />
+        <voice>1</voice>
+        <type>quarter</type>
+        <notations>
+          <tied type="stop" />
+        </notations>
       </note>
     </measure>
   </part>

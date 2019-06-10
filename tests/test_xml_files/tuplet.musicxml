@@ -4,8 +4,8 @@
 <score-partwise version="3.0">
   <identification>
     <encoding>
-      <software>python-ly 0.9.4</software>
-      <encoding-date>2016-03-28</encoding-date>
+      <software>python-ly 0.9.5</software>
+      <encoding-date>2019-06-10</encoding-date>
     </encoding>
   </identification>
   <part-list>
@@ -16,7 +16,7 @@
   <part id="P1">
     <measure number="1">
       <attributes>
-        <divisions>1</divisions>
+        <divisions>3</divisions>
         <time symbol="common">
           <beats>4</beats>
           <beat-type>4</beat-type>
@@ -31,7 +31,7 @@
           <step>C</step>
           <octave>3</octave>
         </pitch>
-        <duration>1</duration>
+        <duration>3</duration>
         <tie type="start" />
         <voice>1</voice>
         <type>quarter</type>
@@ -44,12 +44,46 @@
           <step>C</step>
           <octave>3</octave>
         </pitch>
-        <duration>1</duration>
+        <duration>2</duration>
         <tie type="stop" />
         <voice>1</voice>
         <type>quarter</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
         <notations>
           <tied type="stop" />
+          <tuplet number="1" type="start" />
+        </notations>
+      </note>
+      <note>
+        <pitch>
+          <step>C</step>
+          <octave>3</octave>
+        </pitch>
+        <duration>2</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+      </note>
+      <note>
+        <pitch>
+          <step>D</step>
+          <octave>3</octave>
+        </pitch>
+        <duration>2</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <notations>
+          <tuplet number="1" type="stop" />
         </notations>
       </note>
     </measure>

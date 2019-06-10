@@ -66,4 +66,7 @@ def are_multi_line_equal(first, second, filename, msg=None):
         print("Test failed for file {}, diff is above\n".format(filename))
         return False
 
-test()
+
+if __name__ == "__main__":
+    #sys.exit(main(sys.argv))
+    test()

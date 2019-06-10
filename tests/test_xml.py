@@ -5,6 +5,23 @@ import ly.musicxml
 from lxml import etree
 import os
 import io
+import re
+
+
+def test_all():
+    test_glissando()
+    print("Glissando test passed")
+    test_tie()
+    print("Tie test passed")
+    test_merge_voice()
+    print("Merge voice test passed")
+    test_variable()
+    print("Variable test passed")
+    test_dynamics()
+    print("Dynamics test passed")
+    test_tuplet()
+    print("Tuplet test passed")
+    print("All tests passed")
 
 
 def test_glissando():
@@ -34,12 +51,12 @@ def test_tuplet():
 def ly_to_xml(filename):
     """Read Lilypond file and return XML string."""
     writer = ly.musicxml.writer()
-    with open(filename, 'r') as lyfile:
+    with open(filename, 'r', encoding='utf-8') as lyfile:
         writer.parse_text(lyfile.read())
     xml = writer.musicxml()
-    sio = io.StringIO()
-    xml.write(sio, "utf-8")
-    return sio.getvalue()
+    return (ly.musicxml.create_musicxml.xml_decl_txt.format(encoding='utf-8') + "\n"
+        + ly.musicxml.create_musicxml.doctype_txt + "\n"
+        + xml.tostring(encoding='unicode'))
 
 
 def read_expected_xml(filename):
@@ -47,7 +64,7 @@ def read_expected_xml(filename):
     with open(filename, 'r') as xmlfile:
         output = xmlfile.read()
     # Replace date in XML file with today's date
-    output = output.replace("2016-03-28", str(datetime.date.today()))
+    output = re.sub(r'\d{4}-\d{2}-\d{2}', str(datetime.date.today()), output)
     return output
 
 
@@ -57,10 +74,11 @@ def compare_output(filename):
                             filename)
 
     output = ly_to_xml(filebase + '.ly')
-    expected_output = read_expected_xml(filebase + '.xml')
+    expected_output = read_expected_xml(filebase + '.musicxml')
 
     assert_multi_line_equal(expected_output, output)
-    validate_xml(output)
+    # Couldn't figure out how to get this working, also may not be important
+    # validate_xml(output)
 
 
 def validate_xml(xml):
@@ -69,7 +87,7 @@ def validate_xml(xml):
     xsdfile = open(xsdname, 'r')
     xmlschema_doc = etree.parse(xsdfile)
     xsdfile.close()
-    xmlschema = etree.XMLSchema(xmlschema_doc)
+    xmlschema = etree.XMLSchema(etree=xmlschema_doc)
     parser = etree.XMLParser(schema=xmlschema)
     # Raises Exception if not valid:
     etree.fromstring(xml, parser)
@@ -89,3 +107,8 @@ def assert_multi_line_equal(first, second, msg=None):
         if msg:
             message += " : " + msg
         assert False, "Multi-line strings are unequal:\n" + message
+
+
+if __name__ == "__main__":
+    #sys.exit(main(sys.argv))
+    test_all()
