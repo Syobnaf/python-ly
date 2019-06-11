@@ -10,18 +10,22 @@ import re
 
 def test_all():
     test_glissando()
-    print("Glissando test passed")
+    print("\nGlissando test passed\n")
     test_tie()
-    print("Tie test passed")
+    print("\nTie test passed\n")
     test_merge_voice()
-    print("Merge voice test passed")
+    print("\nMerge voice test passed\n")
     test_variable()
-    print("Variable test passed")
+    print("\nVariable test passed\n")
     test_dynamics()
-    print("Dynamics test passed")
+    print("\nDynamics test passed\n")
     test_tuplet()
-    print("Tuplet test passed")
-    print("All tests passed")
+    print("\nTuplet test passed\n")
+    test_pickup()
+    print("\nPickup test passed\n")
+    test_lyrics()
+    print("\nLyrics test passed\n")
+    print("\nAll tests passed\n")
 
 
 def test_glissando():
@@ -46,6 +50,14 @@ def test_dynamics():
 
 def test_tuplet():
     compare_output('tuplet')
+
+
+def test_pickup():
+    compare_output('pickup')
+
+
+def test_lyrics():
+    compare_output('lyrics')
 
 
 def ly_to_xml(filename):
@@ -78,19 +90,20 @@ def compare_output(filename):
 
     assert_multi_line_equal(expected_output, output)
     # Couldn't figure out how to get this working, also may not be important
-    # validate_xml(output)
+    validate_xml(output)
 
 
 def validate_xml(xml):
     """Validate XML against XSD file."""
+    # see https://www.w3.org/2011/prov/track/issues/480
+    # and https://stackoverflow.com/questions/49534700/how-to-use-xlink-data-types-in-xsd
+    # and https://stackoverflow.com/questions/15830421/xml-unicode-strings-with-encoding-declaration-are-not-supported
+    xml = xml.encode('utf-8')
     xsdname = os.path.join(os.path.dirname(__file__), 'musicxml.xsd')
-    xsdfile = open(xsdname, 'r')
-    xmlschema_doc = etree.parse(xsdfile)
-    xsdfile.close()
-    xmlschema = etree.XMLSchema(etree=xmlschema_doc)
-    parser = etree.XMLParser(schema=xmlschema)
+    xmlschema = etree.XMLSchema(file=xsdname)
+    parser = etree.XMLParser(schema=xmlschema, encoding='utf-8')
     # Raises Exception if not valid:
-    etree.fromstring(xml, parser)
+    etree.fromstring(xml, parser=parser)
 
 
 def assert_multi_line_equal(first, second, msg=None):
