@@ -25,6 +25,8 @@ def test_all():
     print("\nPickup test passed\n")
     test_lyrics()
     print("\nLyrics test passed\n")
+    test_barlines()
+    print("\nBarlines test passed\n")
     print("\nAll tests passed\n")
 
 
@@ -58,6 +60,10 @@ def test_pickup():
 
 def test_lyrics():
     compare_output('lyrics')
+
+
+def test_barlines():
+    compare_output('barlines')
 
 
 def ly_to_xml(filename):
