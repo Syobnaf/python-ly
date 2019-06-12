@@ -4,66 +4,17 @@ import difflib
 import ly.musicxml
 from lxml import etree
 import os
-import io
 import re
+import ly.pkginfo
 
 
 def test_all():
-    test_glissando()
-    print("\nGlissando test passed\n")
-    test_tie()
-    print("\nTie test passed\n")
-    test_merge_voice()
-    print("\nMerge voice test passed\n")
-    test_variable()
-    print("\nVariable test passed\n")
-    test_dynamics()
-    print("\nDynamics test passed\n")
-    test_tuplet()
-    print("\nTuplet test passed\n")
-    test_pickup()
-    print("\nPickup test passed\n")
-    test_lyrics()
-    print("\nLyrics test passed\n")
-    test_barlines()
-    print("\nBarlines test passed\n")
-    print("\nAll tests passed\n")
-
-
-def test_glissando():
-    compare_output('glissando')
-
-
-def test_tie():
-    compare_output('tie')
-
-
-def test_merge_voice():
-    compare_output('merge_voice')
-
-
-def test_variable():
-    compare_output('variable')
-
-
-def test_dynamics():
-    compare_output('dynamics')
-
-
-def test_tuplet():
-    compare_output('tuplet')
-
-
-def test_pickup():
-    compare_output('pickup')
-
-
-def test_lyrics():
-    compare_output('lyrics')
-
-
-def test_barlines():
-    compare_output('barlines')
+    """Test all files in test_xml_files"""
+    test_list = ['glissando', 'tie', 'merge_voice', 'variable', 'dynamics', 'tuplet', 'pickup', 'lyrics', 'barlines']
+    for test in test_list:
+        print("Testing {}.ly...".format(test))
+        compare_output(test)
+        print(test + " test passed.\n")
 
 
 def ly_to_xml(filename):
@@ -81,8 +32,9 @@ def read_expected_xml(filename):
     """Return string with expected XML from file."""
     with open(filename, 'r') as xmlfile:
         output = xmlfile.read()
-    # Replace date in XML file with today's date
+    # Replace date and python-ly version in XML file with today's date and current version
     output = re.sub(r'\d{4}-\d{2}-\d{2}', str(datetime.date.today()), output)
+    output = re.sub(r'python-ly \d*\.\d*\.\d*', "python-ly " + ly.pkginfo.version, output)
     return output
 
 
@@ -95,7 +47,6 @@ def compare_output(filename):
     expected_output = read_expected_xml(filebase + '.musicxml')
 
     assert_multi_line_equal(expected_output, output)
-    # Couldn't figure out how to get this working, also may not be important
     validate_xml(output)
 
 
