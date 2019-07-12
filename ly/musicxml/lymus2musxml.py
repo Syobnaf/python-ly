@@ -81,6 +81,8 @@ class ParseSource():
         self.voice_sep_start_time_since_bar = 0
         self.voice_sep_length = 0
         self.voice_sep_first_meas = False
+        self.refrain = False
+        self.refrain_name = ""
         self.sims_and_seqs = []
         self.override_dict = {}
         self.ottava = False
@@ -706,11 +708,21 @@ class ParseSource():
             self.tupl_span = True
 
     def String(self, string):
-        prev = self.get_previous_node(string)
-        # If a new \bar is found: record its position and style-type, and create appropriate barline
-        if prev and prev.token == '\\bar':
-            self.barline_locations[self.total_time] = string.value()
-            self.check_for_barline(string)
+        # Handles refrain comments in the Lilypond (CCEL specific)
+        if string.token.strip()[:8] == "%refrain":
+            name = string.token[8:].strip()
+            if name[:5] == "name=":
+                name = name[5:]
+            self.refrain = True
+            self.refrain_name = name
+        elif string.token.strip() == "%endrefrain":
+            self.refrain = False
+        else:
+            prev = self.get_previous_node(string)
+            # If a new \bar is found: record its position and style-type, and create appropriate barline
+            if prev and prev.token == '\\bar':
+                self.barline_locations[self.total_time] = string.value()
+                self.check_for_barline(string)
 
     def LyricsTo(self, lyrics_to):
         r"""A \lyricsto expression. """
@@ -720,6 +732,8 @@ class ParseSource():
     def LyricText(self, lyrics_text):
         """A lyric text (word, markup or string), with a Duration."""
         self.mediator.new_lyrics_text(lyrics_text.token)
+        if self.refrain:
+            self.mediator.lyric.append("refrain:" + self.refrain_name)
 
     def LyricItem(self, lyrics_item):
         """Another lyric item (skip, extender, hyphen or tie)."""
@@ -838,6 +852,7 @@ class ParseSource():
                                            "\\drummode", "\\drums", "\\figuremode", "\\figures",
                                            "\\lyricmode", "\\lyrics", "\\addlyrics"]:
                 self.alt_mode = None
+                self.refrain = False
         elif end.node.token == '<':  # chord
             self.mediator.chord_end()
             # Check for bar unless final note in voice separator (in which case, wait until after)
@@ -857,6 +872,7 @@ class ParseSource():
             self.mediator.check_lyrics(end.node.context_id())
             self.sims_and_seqs.pop()
             self.mediator.new_lyric_nr(self.mediator.lyric_nr + 1)
+            self.refrain = False
         elif end.node.token == '\\with':
             self.with_contxt = None
         elif end.node.token == '\\drums':

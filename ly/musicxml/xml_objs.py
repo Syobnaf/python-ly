@@ -203,12 +203,17 @@ class IterateXmlObjs():
         if obj.fingering:
             self.musxml.add_fingering(obj.fingering)
         if obj.lyric:
-            for l in obj.lyric:
-                # Allows a lyric to have the extend tag if necessary
-                if "extend" in l:
-                    self.musxml.add_lyric(l[0], l[1], l[2], "extend")
-                else:
-                    self.musxml.add_lyric(l[0], l[1], l[2])
+            for lyr in obj.lyric:
+                extend = False
+                refrain = False
+                # Allows a lyric to have the extend tag or a name tag (indicating a refrain) if necessary
+                for lyr_part in lyr:
+                    if isinstance(lyr_part, str):
+                        if lyr_part[:8] == "refrain:":
+                            refrain = lyr_part[8:]
+                        if lyr_part == "extend":
+                            extend = True
+                self.musxml.add_lyric(lyr[0], lyr[1], lyr[2], extend, refrain)
 
     def new_xml_rest(self, obj):
         """Create rest specific xml-nodes."""
