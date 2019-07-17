@@ -834,10 +834,16 @@ class Reader(object):
             item, source = self.test_music_list(t)
             if item:
                 if source:
-                    for t in skip(source):
-                        i = self.read_lyric_item(t) or self.read_item(t)
-                        if i:
-                            item.append(i)
+                    for t in source:
+                        if isinstance(t, lex.Space):
+                            pass
+                        elif isinstance(t, lex.Comment):
+                            if t.strip() == "%endrefrain" or (t[:8] == "%refrain" and t[:9] != "%refrain:"):
+                                item.append(self.factory(String, t))
+                        else:
+                            i = self.read_lyric_item(t) or self.read_item(t)
+                            if i:
+                                item.append(i)
                 return item
 
     @_commands('\\stringTuning')
