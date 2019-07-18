@@ -427,9 +427,15 @@ class ParseSource():
             self.total_time += mus_obj.parent().duration[0]
             self.check_for_chord(mus_obj)
 
+    def adjust_tuplet_length(self, obj):
+        r""" Adjusts the length of notes within a \tuplet """
+        if len(self.tuplet) != 0:
+            obj.duration = (Fraction(self.tuplet[0]["length"] / self.tuplet[0]["fraction"][0]), obj.duration[1])
+
     def Note(self, note):
         """ notename, e.g. c, cis, a bes ... """
         # print(note.token)
+        self.adjust_tuplet_length(note)
         # if the note is a bass note in a chord symbol, break out of function
         if not isinstance(note.parent(), ly.music.items.ChordSpecifier):
             if note.length() and self.alt_mode != "chord":
@@ -460,6 +466,7 @@ class ParseSource():
 
     def Unpitched(self, unpitched):
         """A note without pitch, just a standalone duration."""
+        self.adjust_tuplet_length(unpitched)
         if unpitched.length():
             if self.alt_mode == 'drum':
                 self.mediator.new_iso_dura(unpitched, self.relative, True)
@@ -470,6 +477,7 @@ class ParseSource():
 
     def DrumNote(self, drumnote):
         """A note in DrumMode."""
+        self.adjust_tuplet_length(drumnote)
         if drumnote.length():
             self.mediator.new_note(drumnote, is_unpitched=True)
             self.check_note(drumnote)
@@ -530,6 +538,7 @@ class ParseSource():
 
     def Rest(self, rest):
         r""" rest, r or R. Note: NOT by command, i.e. \rest """
+        self.adjust_tuplet_length(rest)
         if rest.token == 'R':
             self.scale = 'R'
         self.mediator.new_rest(rest)
@@ -537,6 +546,7 @@ class ParseSource():
 
     def Skip(self, skip):
         r""" invisible rest/spacer rest (s or command \skip)"""
+        self.adjust_tuplet_length(skip)
         if self.alt_mode == 'lyric':
             self.mediator.new_lyrics_item(skip.token)
         elif self.alt_mode == "chord":
