@@ -456,10 +456,7 @@ class ParseSource():
         """ notename, e.g. c, cis, a bes ... """
         # print(note.token)
         self.adjust_tuplet_length(note)
-<<<<<<< HEAD
-=======
         self.transpose_note(note)
->>>>>>> 22-support-transpose-element
         # if the note is a bass note in a chord symbol, break out of function
         if not isinstance(note.parent(), ly.music.items.ChordSpecifier):
             if note.length() and self.alt_mode != "chord":
