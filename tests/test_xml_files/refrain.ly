@@ -1,7 +1,6 @@
 \version "2.18.2"
 
 StanzaOne = \lyricmode {
-  \set stanza = "1."
   %refrain  Start  
   La di la di
   %endrefrain 
@@ -11,7 +10,6 @@ StanzaOne = \lyricmode {
 }
 
 StanzaTwo = \lyricmode {
-  \set stanza = "2."
   Da li da li
   da li da li
   %refrain:End
@@ -21,12 +19,10 @@ StanzaTwo = \lyricmode {
 
 keyTime = {
     \time 4/4
-    \numericTimeSignature
     \key c \major
 }
 
 Soprano = \relative c'' {
-  \voiceOne
   \keyTime
     b4 b b b
     b b b b 
