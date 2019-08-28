@@ -75,6 +75,8 @@ class ParseSource():
         self.scale = ''
         self.grace_seq = False
         self.trem_rep = 0
+        self.trem_note_count = 0
+        self.trem_is_started = False
         self.piano_staff = 0
         self.staff = 0
         self.numericTime = False
@@ -625,13 +627,26 @@ class ParseSource():
             self.update_beams(drumnote)
         self.update_time_and_check(drumnote)
 
+    def handle_tremolo_start_stop(self):
+        """ Set multinote tremolos. The first note gets the 'start' type, subsequent notes get no type. """
+        if not self.trem_is_started:
+            ttype = 'start'
+            self.trem_is_started = True
+        else:
+            ttype = None
+        self.mediator.set_tremolo(trem_type=ttype, repeats=self.trem_rep, note_count=self.trem_note_count)
+
     def check_note(self, note):
         """Generic check for all notes, both pitched and unpitched."""
         self.check_tuplet()
         if self.grace_seq:
             self.mediator.new_grace()
-        if self.trem_rep and not self.look_ahead(note, ly.music.items.Duration):
-            self.mediator.set_tremolo(trem_type='start', repeats=self.trem_rep)
+        if self.trem_rep:
+            # Update the duration of the note
+            note.duration = (note.duration[0] * self.trem_rep, note.duration[1])
+            # Set tremolo if there isn't a duration change
+            if not self.look_ahead(note, ly.music.items.Duration):
+                self.handle_tremolo_start_stop()
 
     def check_tuplet(self):
         """Generic tuplet check."""
@@ -663,7 +678,7 @@ class ParseSource():
             if self.alt_mode not in ["chord", "lyric"]:  # Avoids \skip # in lyrics
                 self.mediator.new_duration_token(duration.token, duration.tokens)
                 if self.trem_rep:
-                    self.mediator.set_tremolo(trem_type='start', repeats=self.trem_rep)
+                    self.handle_tremolo_start_stop()
 
     def Tempo(self, tempo):
         """ Tempo direction, e g '4 = 80' """
@@ -902,6 +917,10 @@ class ParseSource():
                 self.mediator.new_repeat('forward')
         elif repeat.specifier() == 'tremolo':
             self.trem_rep = repeat.repeat_count()
+            if isinstance(repeat[0], ly.music.items.MusicList):  # List of notes
+                self.trem_note_count = len(repeat[0])
+            else:  # Singular note
+                self.trem_note_count = 1
         else:  # TODO: Support percent repeats
             print("Warning: Repeat", repeat.specifier(), "is not supported!")
 
@@ -1158,6 +1177,7 @@ class ParseSource():
                     self.mediator.set_tremolo(trem_type="stop")
                 else:
                     self.mediator.set_tremolo(trem_type="single")
+                self.trem_is_started = False
                 self.trem_rep = 0
         elif isinstance(end.node, ly.music.items.Context):
             self.in_context = False
@@ -1311,10 +1331,35 @@ class ParseSource():
         Iter over node which represent a \repeat unfold expression
         and do the unfolding directly.
         """
+        # Create list of repeat_count alternate endings (in reverse order) if there are any
+        #     (the first ending is repeated to fill in the difference between the number of endings and repeat_count)
+        num_endings = 0
+        endings = []
+        for node in repeat_node:
+            if isinstance(node, ly.music.items.Alternative):
+                num_endings = len(node[0])
+                if num_endings > repeat_count:
+                    num_endings = repeat_count
+                    print("Warning: More alternate endings than unfold repeats (removing extras)!")
+                if num_endings != 0:
+                    # Append all endings from the last ending until the second ending (reverse order)
+                    for i in range(num_endings - 1, 0, -1):
+                        endings.append(node[0][i])
+                    # Repeat first ending
+                    for i in range(repeat_count - num_endings + 1):
+                        endings.append(node[0][0])
+                break
+        # Duplicate the nodes in the repeat
         for r in range(repeat_count):
+            # Duplicate nodes in the body of the repeat
             for n in repeat_node:
-                for c in self.iter_score(n, doc):
-                    yield c
+                if not isinstance(n, ly.music.items.Alternative):
+                    for c in self.iter_score(n, doc):
+                        yield c
+            # Produce one ending (if any) after every time the body of the repeat has been duplicated
+            if endings:
+                for alt in self.iter_score(endings.pop(), doc):
+                    yield alt
 
     def find_score_sub(self, doc):
         """Find substitute for scorenode. Takes first music node that isn't
